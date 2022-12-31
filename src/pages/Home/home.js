@@ -46,10 +46,11 @@ export const Form = styled.form`
     color: #fff;
     font-size: 18px;
   }
-  textare {
+  textarea {
     margin-bottom: 12px;
     border: 0;
     height: 90px;
+    padding: 8px;
     resize: none;
   }
 `

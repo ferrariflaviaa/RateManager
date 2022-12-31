@@ -50,6 +50,7 @@ export const Form = styled.form`
     margin-bottom: 12px;
     border: 0;
     height: 90px;
+    padding: 8px;
     resize: none;
   }
 `
