@@ -1,20 +1,33 @@
 import { useState } from 'react'
 import { Container, Form } from './home.js'
 import { Link } from 'react-router-dom'
+
+import  firebase  from './../../firebaseConnection'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
 export default function Home() {
+  const navigate = useNavigate();
+
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    const {auth} = firebase
 
-    if(email !== '' && password !== ''){
-      alert("Teste");
-    
-    }else{
-      alert("Preencha todos os campos");
+    if (email !== '' && password !== '') {
+      await signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          //navegar para o admin
+          navigate('/admin', {replace: true})
+        })
+        .catch(() => {
+          console.log('ERRO AO FAZER LOGIN!')
+        })
+    } else {
+      alert('Preencha todos os campos')
     }
-
   }
   return (
     <Container>
