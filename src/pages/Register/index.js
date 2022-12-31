@@ -1,20 +1,30 @@
 import { useState } from 'react'
 import { Container, Form } from './register.js'
 import { Link } from 'react-router-dom'
+import firebase from './../../firebaseConnection'
+import { useNavigate } from 'react-router-dom'
+
 export default function Register() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleRegister = (e) => {
-    e.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault()
 
-    if(email !== '' && password !== ''){
-      alert("Teste");
-    
-    }else{
-      alert("Preencha todos os campos");
+    const { auth } = firebase
+
+    if (email !== '' && password !== '') {
+      await auth().createUserWithEmailAndPassword( email, password)
+      .then(() => {
+        navigate('/admin', {replace: true})
+      })
+      .catch(() => {
+        console.log("ERRO AO FAZER O CADASTRO")
+      })
+    } else {
+      alert('Preencha todos os campos')
     }
-
   }
   return (
     <Container>
