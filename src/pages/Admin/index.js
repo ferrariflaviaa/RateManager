@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Container, Form, List } from './styles.js'
 import firebase from './../../firebaseConnection'
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  query,
-  orderBy,
-  where,
-  snapshotEqual,
-} from 'firebase/firestore'
+import { doc, deleteDoc } from 'firebase/firestore'
 export default function Admin() {
   const { auth, db } = firebase
   const [tarefaInput, setTarefaInput] = useState('')
@@ -40,8 +32,8 @@ export default function Admin() {
             })
 
             console.log(lista)
+            setTarefas(lista)
           })
-
       }
     }
     loadTarefas()
@@ -73,6 +65,17 @@ export default function Admin() {
   const handleLogout = async () => {
     await auth().signOut(auth)
   }
+
+  const deleteTarefa = async (id) => {
+    const collectionRef = firebase.firestore().collection('tarefas')
+    collectionRef
+      .doc(id)
+      .delete()
+      .then(() => {
+        console.log('delete')
+      })
+    // await deleteDoc(collectionRef)
+  }
   return (
     <Container>
       <h1>Minhas Tarefas</h1>
@@ -87,13 +90,20 @@ export default function Admin() {
           Registar sua tarefa
         </button>
       </Form>
-      <List>
-        <p>Estudar js</p>
-        <div>
-          <button>Editar</button>
-          <button className="buttonConcluir">Concluir</button>
-        </div>
-      </List>
+      {tarefas.map((item) => (
+        <List key={item.id}>
+          <p>{item.tarefa}</p>
+          <div>
+            <button>Editar</button>
+            <button
+              className="buttonConcluir"
+              onClick={() => deleteTarefa(item.id)}
+            >
+              Concluir
+            </button>
+          </div>
+        </List>
+      ))}
 
       <button className="buttonlogout" onClick={handleLogout}>
         Sair
