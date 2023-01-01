@@ -1,17 +1,43 @@
-import { useState } from 'react'
-import { Container, Form, List } from './admin.js'
+import { useState, useEffect } from 'react'
+import { Container, Form, List } from './styles.js'
 import firebase from './../../firebaseConnection'
+import { addDoc, collection } from 'firebase/firestore'
 export default function Admin() {
-  const { auth } = firebase
+  const { auth, db, firestore} = firebase;
   const [tarefaInput, setTarefaInput] = useState('')
+  const [user, setUser] = useState('')
 
-  const handleRegister = (e) => {
+  useEffect(() => {
+    async function loadTarefas() {
+      const userDatail = localStorage.getItem('@detailUser')
+      setUser(JSON.parse(userDatail))
+    }
+    loadTarefas()
+  }, [])
+
+  const handleRegister = async (e) => {
     e.preventDefault()
-    alert('clicou')
+
+    if (tarefaInput === '') {
+      alert('Digite sua tarefa...')
+      return
+    }
+    const collectionRef = firebase.firestore().collection('tarefas');
+    collectionRef.add({
+      tarefa: tarefaInput,
+      created: new Date(),
+      userUid: user?.uid,
+    }).then(() => {
+      console.log('Tarefa Registrada')
+      setTarefaInput('')
+    })
+    .catch((error) => {
+      console.log('ERROR AO REGISTRAR' + error)
+    })
   }
 
   const handleLogout = async () => {
-    await auth().signOut(auth);
+    await auth().signOut(auth)
   }
   return (
     <Container>
