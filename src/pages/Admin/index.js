@@ -7,6 +7,8 @@ export default function Admin() {
   const [tarefaInput, setTarefaInput] = useState('')
   const [user, setUser] = useState('')
   const [tarefas, setTarefas] = useState([])
+  const [edit, setEdit] = useState({})
+
 
   useEffect(() => {
     async function loadTarefas() {
@@ -37,13 +39,38 @@ export default function Admin() {
       }
     }
     loadTarefas()
-  }, [])
+  }, []);
+
+  
+  const handleUpdateTarefa = async () => {
+    const collectionRef = firebase.firestore().collection('tarefas')
+    collectionRef
+      .doc(edit?.id)
+      .update({
+        tarefa: tarefaInput,
+      })
+      .then(() => {
+        console.log('TAREFA ATUALIZADA')
+        setTarefaInput('')
+        setEdit({})
+      })
+      .catch(() => {
+        console.log('ERRO AO ATUALIZADA')
+        setTarefaInput('')
+        setEdit({})
+      })
+  }
 
   const handleRegister = async (e) => {
     e.preventDefault()
 
     if (tarefaInput === '') {
       alert('Digite sua tarefa...')
+      return
+    }
+
+    if (edit?.id) {
+      handleUpdateTarefa()
       return
     }
     const collectionRef = firebase.firestore().collection('tarefas')
@@ -66,15 +93,21 @@ export default function Admin() {
     await auth().signOut(auth)
   }
 
+  const editTarefa = async (item) => {
+    setTarefaInput(item.tarefa)
+    setEdit(item)
+  }
+
+
+
   const deleteTarefa = async (id) => {
     const collectionRef = firebase.firestore().collection('tarefas')
-    collectionRef
+    await collectionRef
       .doc(id)
       .delete()
       .then(() => {
         console.log('delete')
       })
-    // await deleteDoc(collectionRef)
   }
   return (
     <Container>
@@ -86,15 +119,25 @@ export default function Admin() {
           value={tarefaInput}
           onChange={(e) => setTarefaInput(e.target.value)}
         />
-        <button className="buttonRegistre" type="submit">
-          Registar sua tarefa
-        </button>
+        {Object.keys(edit).length > 0 ? (
+          <button
+            className="buttonRegistre"
+            type="submit"
+            style={{ backgroundColor: '#6add39' }}
+          >
+            Atualizar tarefa
+          </button>
+        ) : (
+          <button className="buttonRegistre" type="submit">
+            Registar sua tarefa
+          </button>
+        )}
       </Form>
       {tarefas.map((item) => (
         <List key={item.id}>
           <p>{item.tarefa}</p>
           <div>
-            <button>Editar</button>
+            <button onClick={() => editTarefa(item)}>Editar</button>
             <button
               className="buttonConcluir"
               onClick={() => deleteTarefa(item.id)}
